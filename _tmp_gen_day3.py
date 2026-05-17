@@ -1,0 +1,420 @@
+#!/usr/bin/env python3
+"""Generate day3_advanced_reasoning.py with correct encoding"""
+
+TARGET = "/Users/gechunfa1/Documents/ai-code/Prompt_Engineering/Ants-moving/prompt_engineering/day3_advanced_reasoning.py"
+
+content = '''"""
+Day 3 \u5b9e\u8df5\uff1a\u8fdb\u9636\u63a8\u7406\uff08\u4e0b\uff09
+- \u5b9e\u9a8c9\uff1aSelf-Consistency\uff08\u591a\u8def\u5f84\u6295\u7968\uff09
+- \u5b9e\u9a8c10\uff1aTree of Thoughts\uff08\u6811\u72b6\u641c\u7d22\u4e0e\u56de\u6eaf\uff09
+- \u5b9e\u9a8c11\uff1aGenerated Knowledge Prompting\uff08\u5148\u751f\u6210\u77e5\u8bc6\u518d\u63a8\u7406\uff09
+- \u5b9e\u9a8c12\uff1aMeta Prompting\uff08\u7ed3\u6784\u5bfc\u5411 vs \u5185\u5bb9\u5bfc\u5411\uff09
+"""
+
+from prompt_engineering.llm import chat_completion, print_result
+
+
+# ============================================================
+# \u5b9e\u9a8c9\uff1aSelf-Consistency\uff08\u591a\u8def\u5f84\u6295\u7968\uff09
+# ============================================================
+def experiment_9_self_consistency():
+    """
+    \u76ee\u6807\uff1a\u7406\u89e3 Self-Consistency \u7684\u91c7\u6837\u4e0e\u591a\u6570\u6295\u7968\u673a\u5236\u3002
+    \u5bf9\u540c\u4e00\u95ee\u9898\u591a\u6b21\u91c7\u6837\u63a8\u7406\u8def\u5f84\uff0c\u901a\u8fc7\u591a\u6570\u6295\u7968\u9009\u51fa\u6700\u4e00\u81f4\u7684\u7b54\u6848\uff0c
+    \u66ff\u4ee3 CoT \u7684\u8d2a\u5fc3\u89e3\u7801\uff0c\u63d0\u5347\u7b97\u672f\u548c\u5e38\u8bc6\u63a8\u7406\u7684\u51c6\u786e\u6027\u3002
+    \u53c2\u8003\uff1aWang\u7b49\u4eba\uff082022\uff09Self-Consistency
+    """
+
+    print("=" * 60)
+    print("\u5b9e\u9a8c9: Self-Consistency\uff08\u591a\u8def\u5f84\u6295\u7968\uff09")
+    print("=" * 60)
+
+    # \u7ecf\u5178\u5e74\u9f84\u95ee\u9898\uff08\u6765\u81ea DAIR.AI \u9879\u76ee\u793a\u4f8b\uff09
+    problem = "\u5f53\u62116\u5c81\u65f6\uff0c\u6211\u7684\u59b9\u59b9\u662f\u6211\u5e74\u9f84\u7684\u4e00\u534a\u3002\u73b0\u5728\u621170\u5c81\u4e86\uff0c\u6211\u7684\u59b9\u59b9\u591a\u5927\uff1f"
+
+    # \u2460 \u8d2a\u5fc3\u89e3\u7801\uff08\u5355\u6b21\u91c7\u6837\uff0c\u5bb9\u6613\u51fa\u9519\uff09
+    print("--- \u2460 \u8d2a\u5fc3\u89e3\u7801\uff08\u5355\u6b21\u91c7\u6837\uff09---")
+    user_prompt = "Q: " + problem + "\\nA:"
+    thinking, result = chat_completion(user_prompt, temperature=0)
+    print_result("", user_prompt, thinking, result)
+
+    # \u2461 \u591a\u8def\u5f84\u91c7\u6837 + \u591a\u6570\u6295\u7968
+    print("--- \u2461 Self-Consistency\uff08\u591a\u8def\u5f84\u91c7\u6837 + \u591a\u6570\u6295\u7968\uff09---")
+
+    # \u6784\u5efa Few-shot CoT \u63d0\u793a
+    few_shot_examples = [
+        "Q: \u6797\u4e2d\u670915\u68f5\u6811\u3002\u6797\u4e1a\u5de5\u4eba\u4eca\u5929\u5c06\u5728\u6797\u4e2d\u79cd\u6811\u3002\u5b8c\u6210\u540e\uff0c\u5c06\u670921\u68f5\u6811\u3002\u6797\u4e1a\u5de5\u4eba\u4eca\u5929\u79cd\u4e86\u591a\u5c11\u68f5\u6811\uff1f\\nA: \u6211\u4eec\u4ece15\u68f5\u6811\u5f00\u59cb\u3002\u540e\u6765\u6211\u4eec\u670921\u68f5\u6811\u3002\u5dee\u5f02\u5fc5\u987b\u662f\u4ed6\u4eec\u79cd\u6811\u7684\u6570\u91cf\u3002\u56e0\u6b64\uff0c\u4ed6\u4eec\u5fc5\u987b\u79cd\u4e8621-15 = 6\u68f5\u6811\u3002\u7b54\u6848\u662f6\u3002",
+        "Q: \u505c\u8f66\u573a\u67093\u8f86\u6c7d\u8f66\uff0c\u53c8\u6765\u4e862\u8f86\u6c7d\u8f66\uff0c\u505c\u8f66\u573a\u6709\u591a\u5c11\u8f86\u6c7d\u8f66\uff1f\\nA: \u505c\u8f66\u573a\u5df2\u7ecf\u67093\u8f86\u6c7d\u8f66\u3002\u53c8\u6765\u4e862\u8f86\u3002\u73b0\u5728\u67093 + 2 = 5\u8f86\u6c7d\u8f66\u3002\u7b54\u6848\u662f5\u3002",
+        "Q: Leah\u670932\u5757\u5de7\u514b\u529b\uff0c\u5979\u7684\u59d0\u59d0\u670942\u5757\u3002\u5982\u679c\u4ed6\u4eec\u5403\u4e8635\u5757\uff0c\u4ed6\u4eec\u603b\u5171\u8fd8\u5269\u591a\u5c11\u5757\uff1f\\nA: Leah\u670932\u5757\u5de7\u514b\u529b\uff0c\u59d0\u59d0\u670942\u5757\u3002\u6700\u521d\u670932 + 42 = 74\u5757\u3002\u5df2\u7ecf\u5403\u4e8635\u5757\u3002\u56e0\u6b64\uff0c\u603b\u5171\u8fd8\u526974-35 = 39\u5757\u3002\u7b54\u6848\u662f39\u3002",
+        "Q: Jason\u670920\u4e2a\u68d2\u68d2\u7cd6\u3002\u4ed6\u7ed9Denny\u4e00\u4e9b\u3002\u73b0\u5728Jason\u53ea\u670912\u4e2a\u3002Jason\u7ed9Denny\u591a\u5c11\uff1f\\nA: Jason\u670920\u4e2a\u3002\u56e0\u4e3a\u73b0\u5728\u53ea\u670912\u4e2a\uff0c\u6240\u4ee5\u7ed9\u4e8620-12 = 8\u4e2a\u3002\u7b54\u6848\u662f8\u3002",
+        "Q: Shawn\u6709\u4e94\u4e2a\u73a9\u5177\u3002\u5723\u8bde\u8282\u4ece\u7236\u6bcd\u5f97\u5230\u4e24\u4e2a\u3002\u4ed6\u73b0\u5728\u6709\u591a\u5c11\u4e2a\uff1f\\nA: \u4ed6\u67095\u4e2a\u3002\u4ece\u5988\u5988\u5f97\u52302\u4e2a\uff0c\u67095+2=7\u4e2a\u3002\u7136\u540e\u4ece\u7238\u7238\u5f97\u52302\u4e2a\uff0c\u603b\u5171\u67097+2=9\u4e2a\u3002\u7b54\u6848\u662f9\u3002",
+        "Q: \u670d\u52a1\u5668\u623f\u95f4\u91cc\u67099\u53f0\u8ba1\u7b97\u673a\u3002\u4ece\u5468\u4e00\u5230\u5468\u56db\uff0c\u6bcf\u5929\u5b89\u88c55\u53f0\u3002\u73b0\u5728\u6709\u591a\u5c11\u53f0\uff1f\\nA: \u4ece\u5468\u4e00\u5230\u5468\u56db\u67094\u5929\u3002\u6bcf\u5929\u6dfb\u52a05\u53f0\uff0c\u603b\u5171\u6dfb\u52a04*5=20\u53f0\u3002\u4e00\u5f00\u59cb\u67099\u53f0\uff0c\u73b0\u5728\u67099+20=29\u53f0\u3002\u7b54\u6848\u662f29\u3002",
+        "Q: Michael\u670958\u4e2a\u9ad8\u5c14\u592b\u7403\u3002\u5468\u4e8c\u4e2223\u4e2a\uff0c\u5468\u4e09\u53c8\u4e222\u4e2a\u3002\u5468\u4e09\u7ed3\u675f\u65f6\u8fd8\u5269\u591a\u5c11\uff1f\\nA: \u6700\u521d\u670958\u4e2a\u3002\u5468\u4e8c\u4e2223\u4e2a\uff0c\u526958-23=35\u4e2a\u3002\u5468\u4e09\u53c8\u4e222\u4e2a\uff0c\u73b0\u5728\u670935-2=33\u4e2a\u3002\u7b54\u6848\u662f33\u3002",
+        "Q: Olivia\u670923\u7f8e\u5143\u3002\u5979\u7528\u6bcf\u4e2a3\u7f8e\u5143\u7684\u4ef7\u683c\u4e70\u4e86\u4e94\u4e2a\u767e\u5409\u997c\u3002\u5979\u8fd8\u5269\u591a\u5c11\u94b1\uff1f\\nA: \u5979\u7528\u6bcf\u4e2a3\u7f8e\u5143\u7684\u4ef7\u683c\u4e70\u4e865\u4e2a\u767e\u5409\u997c\uff0c\u82b1\u4e8615\u7f8e\u5143\u3002\u5979\u8fd8\u52698\u7f8e\u5143\u3002",
+    ]
+
+    few_shot_cot_prompt = "\\n\\n".join(few_shot_examples)
+    few_shot_cot_prompt += "\\n\\nQ: " + problem + "\\nA:"
+
+    # \u91c7\u6837\u591a\u6b21
+    import re
+    from collections import Counter
+    num_samples = 5
+    answers = []
+    for i in range(num_samples):
+        thinking, result = chat_completion(few_shot_cot_prompt, temperature=0.7)
+        answers.append(result.strip())
+        print(f"  \u91c7\u6837 {i+1}: {result.strip()[:200]}")
+
+    # \u591a\u6570\u6295\u7968\uff08\u63d0\u53d6\u6570\u5b57\u7b54\u6848\u8fdb\u884c\u7edf\u8ba1\uff09
+    numeric_answers = []
+    for ans in answers:
+        numbers = re.findall(r"\\d+", ans)
+        if numbers:
+            numeric_answers.append(numbers[-1])
+
+    if numeric_answers:
+        vote_counts = Counter(numeric_answers)
+        majority_answer = vote_counts.most_common(1)[0]
+        print(f"\\n  \u591a\u6570\u6295\u7968\u7ed3\u679c: \u7b54\u6848={majority_answer[0]}, \u7968\u6570={majority_answer[1]}/{num_samples}")
+        print(f"  \u6240\u6709\u6570\u5b57\u7b54\u6848: {numeric_answers}")
+
+    # \u2462 \u590d\u6742\u5e94\u7528\u9898\u7684 Self-Consistency
+    print("--- \\u2462 \\u590d\\u6742\\u5e94\\u7528\\u9898\\u7684 Self-Consistency ---")
+    complex_problem = "\\u4e00\\u4e2a\\u5de5\\u5382\\u6bcf\\u5929\\u751f\\u4ea7500\\u4e2a\\u96f6\\u4ef6\\u3002\\u5982\\u679c\\u6bcf\\u5929\\u67093%\\u7684\\u6b21\\u54c1\\u7387\\uff0c\\u800c\\u6bcf\\u4e2a\\u5408\\u683c\\u96f6\\u4ef6\\u552e\\u4ef720\\u5143\\uff0c\\u6bcf\\u4e2a\\u6b21\\u54c1\\u635f\\u59315\\u5143\\u6750\\u6599\\u8d39\\u3002\\u95ee\\u5de5\\u538230\\u5929\\u7684\\u51c0\\u5229\\u6da6\\u662f\\u591a\\u5c11\\uff1f"
+
+    user_prompt = "\\u8bf7\\u4e00\\u6b65\\u6b65\\u8ba1\\u7b97\\u4ee5\\u4e0b\\u95ee\\u9898\\uff1a\\n\\n" + complex_problem + "\\n\\n\\u8ba9\\u6211\\u4eec\\u9010\\u6b65\\u601d\\u8003\\uff1a"
+
+    answers_complex = []
+    for i in range(3):
+        thinking, result = chat_completion(user_prompt, temperature=0.8)
+        answers_complex.append(result.strip())
+        print(f"  \\u91c7\\u6837 {i+1}: {result.strip()[:200]}")
+
+    numeric_answers_complex = []
+    for ans in answers_complex:
+        numbers = re.findall(r"[\\d,]+\\.?\\d*", ans.replace(",", ""))
+        if numbers:
+            numeric_answers_complex.append(numbers[-1])
+
+    if numeric_answers_complex:
+        vote_counts = Counter(numeric_answers_complex)
+        majority_answer = vote_counts.most_common(1)[0]
+        print(f"\\n  \\u591a\\u6570\\u6295\\u7968\\u7ed3\\u679c: \\u7b54\\u6848={majority_answer[0]}, \\u7968\\u6570={majority_answer[1]}/3")
+
+
+# ============================================================
+# \\u5b9e\\u9a8c10\\uff1aTree of Thoughts\\uff08\\u6811\\u72b6\\u641c\\u7d22\\u4e0e\\u56de\\u6eaf\\uff09
+# ============================================================
+def experiment_10_tree_of_thoughts():
+    """
+    \\u76ee\\u6807\\uff1a\\u7406\\u89e3 Tree of Thoughts (ToT) \\u7684\\u6811\\u72b6\\u641c\\u7d22\\u4e0e\\u56de\\u6eaf\\u673a\\u5236\\u3002
+    \\u6a21\\u578b\\u53ef\\u4ee5\\u81ea\\u6211\\u8bc4\\u4f30\\u4e2d\\u95f4\\u6b65\\u9aa4\\uff08sure/maybe/impossible\\uff09\\uff0c
+    \\u7ed3\\u5408 BFS/DFS \\u8fdb\\u884c\\u56de\\u6eaf\\u4e0e\\u641c\\u7d22\\u3002
+    \\u53c2\\u8003\\uff1aYao\\u7b49\\u4eba\\uff082023\\uff09Tree of Thoughts
+    """
+
+    print("=" * 60)
+    print("\\u5b9e\\u9a8c10: Tree of Thoughts\\uff08\\u6811\\u72b6\\u641c\\u7d22\\u4e0e\\u56de\\u6eaf\\uff09")
+    print("=" * 60)
+
+    # \\u2460 24\\u70b9\\u6e38\\u620f
+    print("--- \\u2460 ToT\\uff1a24\\u70b9\\u6e38\\u620f ---")
+    user_prompt = """\\u4f7f\\u7528\\u6570\\u5b57 4\\u30016\\u30018\\u30013\\uff0c\\u901a\\u8fc7\\u52a0\\u51cf\\u4e58\\u9664\\u8fd0\\u7b97\\u5f97\\u523024\\u3002\\u6bcf\\u4e2a\\u6570\\u5b57\\u5fc5\\u987b\\u4e14\\u53ea\\u80fd\\u4f7f\\u7528\\u4e00\\u6b21\\u3002
+
+\\u8bf7\\u7528\\u6811\\u72b6\\u641c\\u7d22\\u7684\\u65b9\\u6cd5\\u89e3\\u51b3\\uff1a
+1. \\u9996\\u5148\\u5217\\u51fa\\u7b2c\\u4e00\\u6b65\\u53ef\\u80fd\\u7684\\u8fd0\\u7b97\\uff08\\u81f3\\u5c113\\u79cd\\u4e0d\\u540c\\u9009\\u62e9\\uff09
+2. \\u5bf9\\u6bcf\\u79cd\\u9009\\u62e9\\u8bc4\\u4f30\\u662f\\u5426\\u80fd\\u7ee7\\u7eed\\u8d70\\u541124\\uff08\\u6807\\u6ce8\\uff1asure/maybe/impossible\\uff09
+3. \\u9009\\u62e9\\u6700\\u6709\\u5e0c\\u671b\\u7684\\u8def\\u5f84\\u7ee7\\u7eed
+4. \\u5982\\u679c\\u8d70\\u4e0d\\u901a\\uff0c\\u56de\\u6eaf\\u5230\\u4e0a\\u4e00\\u6b65\\u9009\\u62e9\\u53e6\\u4e00\\u6761\\u8def\\u5f84
+
+\\u8bf7\\u8be6\\u7ec6\\u5c55\\u793a\\u4f60\\u7684\\u641c\\u7d22\\u8fc7\\u7a0b\\uff1a"""
+    thinking, result = chat_completion(user_prompt)
+    print_result("", user_prompt, thinking, result)
+
+    # \\u2461 \\u521b\\u610f\\u5199\\u4f5c\\u4e2d\\u7684 ToT
+    print("--- \\u2461 \\u521b\\u610f\\u5199\\u4f5c\\u4e2d\\u7684 ToT ---")
+    user_prompt = """\\u8bf7\\u7528\\u6811\\u72b6\\u601d\\u7ef4\\u65b9\\u6cd5\\u5b8c\\u6210\\u4e00\\u4e2a5\\u53e5\\u8bdd\\u7684\\u60ac\\u7591\\u5fae\\u5c0f\\u8bf4\\u3002
+
+\\u7b2c\\u4e00\\u6b65\\uff1a\\u751f\\u62103\\u79cd\\u4e0d\\u540c\\u7684\\u5f00\\u5934\\u65b9\\u5f0f
+\\u7b2c\\u4e8c\\u6b65\\uff1a\\u5bf9\\u6bcf\\u79cd\\u5f00\\u5934\\u8bc4\\u4f30\\u53d1\\u5c55\\u6f5c\\u529b\\uff08sure/maybe/impossible\\uff09
+\\u7b2c\\u4e09\\u6b65\\uff1a\\u9009\\u62e9\\u6700\\u4f73\\u8def\\u5f84\\uff0c\\u4e3a\\u9009\\u4e2d\\u7684\\u5f00\\u5934\\u751f\\u62103\\u79cd\\u4e0d\\u540c\\u7684\\u7b2c\\u4e8c\\u53e5
+\\u7b2c\\u56db\\u6b65\\uff1a\\u7ee7\\u7eed\\u8bc4\\u4f30\\u548c\\u9009\\u62e9\\uff0c\\u76f4\\u5230\\u5b8c\\u62105\\u53e5\\u8bdd\\u7684\\u6545\\u4e8b
+
+\\u8bf7\\u5c55\\u793a\\u5b8c\\u6574\\u7684\\u641c\\u7d22\\u548c\\u56de\\u6eaf\\u8fc7\\u7a0b\\uff1a"""
+    thinking, result = chat_completion(user_prompt)
+    print_result("", user_prompt, thinking, result)
+
+    # \\u2462 \\u65c5\\u884c\\u89c4\\u5212\\u7684 ToT\\uff08BFS\\u641c\\u7d22\\uff09
+    print("--- \\u2462 \\u65c5\\u884c\\u89c4\\u5212\\u7684 ToT\\uff08BFS\\u641c\\u7d22\\uff09---")
+    user_prompt = """\\u4f60\\u6709\\u4e00\\u4e2a5\\u5929\\u7684\\u65c5\\u884c\\u9884\\u7b973000\\u5143\\uff0c\\u9700\\u8981\\u4ece\\u5317\\u4eac\\u51fa\\u53d1\\u53bb\\u4e00\\u4e2a\\u57ce\\u5e02\\u65c5\\u884c\\u3002
+
+\\u8bf7\\u7528\\u5e7f\\u5ea6\\u4f18\\u5148\\u641c\\u7d22(BFS)\\u7684\\u65b9\\u5f0f\\u89c4\\u5212\\uff1a
+\\u7b2c1\\u5c42\\uff1a\\u5217\\u51fa3\\u4e2a\\u5019\\u9009\\u76ee\\u7684\\u5730
+\\u7b2c2\\u5c42\\uff1a\\u5bf9\\u6bcf\\u4e2a\\u76ee\\u7684\\u5730\\u4f30\\u7b97\\u4ea4\\u901a+\\u4f4f\\u5bbf\\u6210\\u672c\\uff0c\\u8bc4\\u4f30\\u9884\\u7b97\\u53ef\\u884c\\u6027\\uff08sure/maybe/impossible\\uff09
+\\u7b2c3\\u5c42\\uff1a\\u5bf9\\u53ef\\u884c\\u76ee\\u7684\\u5730\\u7ec6\\u5316\\u6bcf\\u65e5\\u884c\\u7a0b
+\\u7b2c4\\u5c42\\uff1a\\u9009\\u51fa\\u6700\\u4f18\\u65b9\\u6848
+
+\\u8bf7\\u5c55\\u793a\\u5b8c\\u6574\\u7684BFS\\u641c\\u7d22\\u8fc7\\u7a0b\\uff1a"""
+    thinking, result = chat_completion(user_prompt)
+    print_result("", user_prompt, thinking, result)
+
+    # \\u2463 ToT vs CoT \\u5bf9\\u6bd4
+    print("--- \\u2463 ToT vs CoT \\u5bf9\\u6bd4\\uff1a\\u903b\\u8f91\\u63a8\\u7406\\u9898 ---")
+    logic_problem = """\\u7532\\u3001\\u4e59\\u3001\\u4e19\\u4e09\\u4eba\\u5206\\u522b\\u662f\\u7a0b\\u5e8f\\u5458\\u3001\\u8bbe\\u8ba1\\u5e08\\u548c\\u4ea7\\u54c1\\u7ecf\\u7406\\uff08\\u4e0d\\u4e00\\u5b9a\\u5bf9\\u5e94\\uff09\\u3002
+\\u5df2\\u77e5\\uff1a
+1. \\u7532\\u4e0d\\u662f\\u4ea7\\u54c1\\u7ecf\\u7406
+2. \\u4e59\\u4e0d\\u662f\\u8bbe\\u8ba1\\u5e08
+3. \\u7a0b\\u5e8f\\u5458\\u6bd4\\u4e19\\u5e74\\u9f84\\u5927
+4. \\u8bbe\\u8ba1\\u5e08\\u6bd4\\u7532\\u5e74\\u9f84\\u5c0f
+\\u8bf7\\u786e\\u5b9a\\u4e09\\u4eba\\u7684\\u804c\\u4e1a\\u3002"""
+
+    print("[CoT \\u65b9\\u6cd5]")
+    user_prompt = "\\u8bf7\\u9010\\u6b65\\u63a8\\u7406\\uff1a\\n\\n" + logic_problem
+    thinking, result = chat_completion(user_prompt)
+    print_result("", user_prompt, thinking, result)
+
+    print("[ToT \\u65b9\\u6cd5]")
+    user_prompt = """\\u8bf7\\u7528\\u6811\\u72b6\\u601d\\u7ef4\\u65b9\\u6cd5\\u89e3\\u51b3\\u4ee5\\u4e0b\\u903b\\u8f91\\u63a8\\u7406\\u9898\\u3002\\u5bf9\\u6bcf\\u79cd\\u5047\\u8bbe\\u8bc4\\u4f30\\u5176\\u53ef\\u884c\\u6027\\uff08sure/maybe/impossible\\uff09\\uff0c\\u5982\\u679c\\u53d1\\u73b0\\u77db\\u76fe\\u5c31\\u56de\\u6eaf\\u3002
+
+""" + logic_problem + """
+
+\\u6b65\\u9aa4\\uff1a
+1. \\u5bf9\\u7532\\u7684\\u804c\\u4e1a\\u5217\\u51fa\\u6240\\u6709\\u53ef\\u80fd
+2. \\u5bf9\\u6bcf\\u79cd\\u53ef\\u80fd\\u8bc4\\u4f30\\u662f\\u5426\\u4e0e\\u5176\\u4ed6\\u6761\\u4ef6\\u77db\\u76fe
+3. \\u9009\\u62e9\\u4e0d\\u77db\\u76fe\\u7684\\u8def\\u5f84\\u7ee7\\u7eed\\u63a8\\u7406
+4. \\u5982\\u679c\\u9047\\u5230\\u77db\\u76fe\\uff0c\\u56de\\u6eaf\\u5230\\u4e0a\\u4e00\\u6b65"""
+    thinking, result = chat_completion(user_prompt)
+    print_result("", user_prompt, thinking, result)
+
+
+# ============================================================
+# \\u5b9e\\u9a8c11\\uff1aGenerated Knowledge Prompting\\uff08\\u5148\\u751f\\u6210\\u77e5\\u8bc6\\u518d\\u63a8\\u7406\\uff09
+# ============================================================
+def experiment_11_generated_knowledge():
+    """
+    \\u76ee\\u6807\\uff1a\\u638c\\u63e1 Generated Knowledge Prompting \\u7684\\u4e24\\u6b65\\u6d41\\u7a0b\\uff1a
+    1. \\u5148\\u8ba9\\u6a21\\u578b\\u751f\\u6210\\u76f8\\u5173\\u9886\\u57df\\u77e5\\u8bc6
+    2. \\u5c06\\u751f\\u6210\\u7684\\u77e5\\u8bc6\\u4f5c\\u4e3a\\u4e0a\\u4e0b\\u6587\\uff0c\\u518d\\u8ba9\\u6a21\\u578b\\u56de\\u7b54\\u95ee\\u9898
+    \\u53c2\\u8003\\uff1aLiu\\u7b49\\u4eba\\uff082022\\uff09Generated Knowledge Prompting
+    """
+
+    print("=" * 60)
+    print("\\u5b9e\\u9a8c11: Generated Knowledge Prompting\\uff08\\u5148\\u751f\\u6210\\u77e5\\u8bc6\\u518d\\u63a8\\u7406\\uff09")
+    print("=" * 60)
+
+    # \\u2460 \\u7ecf\\u5178\\u793a\\u4f8b\\uff1a\\u9ad8\\u5c14\\u592b\\u7403\\u5f97\\u5206
+    print("--- \\u2460 \\u7ecf\\u5178\\u793a\\u4f8b\\uff1a\\u9ad8\\u5c14\\u592b\\u7403\\u5f97\\u5206 ---")
+    question = "\\u9ad8\\u5c14\\u592b\\u7403\\u7684\\u4e00\\u90e8\\u5206\\u662f\\u8bd5\\u56fe\\u83b7\\u5f97\\u6bd4\\u5176\\u4ed6\\u4eba\\u66f4\\u9ad8\\u7684\\u5f97\\u5206\\u3002\\u662f\\u6216\\u5426\\uff1f"
+
+    print("[\\u4e0d\\u4f7f\\u7528\\u77e5\\u8bc6\\u751f\\u6210]")
+    thinking, result = chat_completion(question)
+    print_result("", question, thinking, result)
+
+    print("[\\u7b2c\\u4e00\\u6b65\\uff1a\\u751f\\u6210\\u76f8\\u5173\\u77e5\\u8bc6]")
+    knowledge_prompt = """\\u8f93\\u5165\\uff1a\\u5e0c\\u814a\\u6bd4\\u58a8\\u897f\\u54e5\\u5927\\u3002
+\\u77e5\\u8bc6\\uff1a\\u5e0c\\u814a\\u7684\\u9762\\u79ef\\u7ea6\\u4e3a131,957\\u5e73\\u65b9\\u516c\\u91cc\\uff0c\\u800c\\u58a8\\u897f\\u54e5\\u7684\\u9762\\u79ef\\u7ea6\\u4e3a1,964,375\\u5e73\\u65b9\\u516c\\u91cc\\u3002
+
+\\u8f93\\u5165\\uff1a\\u773c\\u955c\\u603b\\u662f\\u4f1a\\u8d77\\u96fe\\u3002
+\\u77e5\\u8bc6\\uff1a\\u5f53\\u6c34\\u84b8\\u6c14\\u843d\\u5728\\u51b7\\u7684\\u8868\\u9762\\u4e0a\\uff0c\\u4f1a\\u5728\\u773c\\u955c\\u955c\\u7247\\u4e0a\\u4ea7\\u751f\\u51b7\\u51dd\\u3002
+
+\\u8f93\\u5165\\uff1a""" + question + """
+\\u77e5\\u8bc6\\uff1a"""
+    thinking, knowledge = chat_completion(knowledge_prompt)
+    print(f"  \\u751f\\u6210\\u7684\\u77e5\\u8bc6: {knowledge.strip()[:300]}")
+
+    print("[\\u7b2c\\u4e8c\\u6b65\\uff1a\\u7528\\u77e5\\u8bc6\\u8f85\\u52a9\\u56de\\u7b54]")
+    answer_prompt = """\\u95ee\\u9898\\uff1a""" + question + """
+
+\\u77e5\\u8bc6\\uff1a""" + knowledge.strip() + """
+
+\\u57fa\\u4e8e\\u4ee5\\u4e0a\\u77e5\\u8bc6\\uff0c\\u8bf7\\u89e3\\u91ca\\u5e76\\u56de\\u7b54\\u95ee\\u9898\\uff1a"""
+    thinking, result = chat_completion(answer_prompt)
+    print_result("", answer_prompt, thinking, result)
+
+    # \\u2461 \\u79d1\\u5b66\\u77e5\\u8bc6\\u95ee\\u9898
+    print("--- \\u2461 \\u79d1\\u5b66\\u77e5\\u8bc6\\u95ee\\u9898 ---")
+    science_question = "\\u58f0\\u97f3\\u5728\\u6c34\\u4e2d\\u4f20\\u64ad\\u6bd4\\u5728\\u7a7a\\u6c14\\u4e2d\\u5feb\\u5417\\uff1f"
+
+    print("[\\u76f4\\u63a5\\u56de\\u7b54]")
+    thinking, result = chat_completion(science_question)
+    print_result("", science_question, thinking, result)
+
+    print("[\\u5148\\u751f\\u6210\\u77e5\\u8bc6\\u518d\\u56de\\u7b54]")
+    knowledge_prompt = "\\u8bf7\\u751f\\u6210\\u4e0e\\u4ee5\\u4e0b\\u95ee\\u9898\\u76f8\\u5173\\u7684\\u79d1\\u5b66\\u77e5\\u8bc6\\uff1a\\n\\n\\u95ee\\u9898\\uff1a" + science_question + "\\n\\n\\u8bf7\\u5148\\u5217\\u51fa\\u76f8\\u5173\\u7684\\u7269\\u7406\\u77e5\\u8bc6\\uff1a"
+    thinking, knowledge = chat_completion(knowledge_prompt)
+
+    answer_prompt = """\\u95ee\\u9898\\uff1a""" + science_question + """
+
+\\u76f8\\u5173\\u77e5\\u8bc6\\uff1a
+""" + knowledge.strip() + """
+
+\\u57fa\\u4e8e\\u4ee5\\u4e0a\\u77e5\\u8bc6\\uff0c\\u8bf7\\u51c6\\u786e\\u56de\\u7b54\\u95ee\\u9898\\u5e76\\u89e3\\u91ca\\u539f\\u56e0\\uff1a"""
+    thinking, result = chat_completion(answer_prompt)
+    print_result("", answer_prompt, thinking, result)
+
+    # \\u2462 \\u5e38\\u8bc6\\u63a8\\u7406\\u4e2d\\u7684\\u77e5\\u8bc6\\u751f\\u6210
+    print("--- \\u2462 \\u5e38\\u8bc6\\u63a8\\u7406\\u4e2d\\u7684\\u77e5\\u8bc6\\u751f\\u6210 ---")
+    common_question = "\\u628a\\u91d1\\u5c5e\\u52fa\\u5b50\\u653e\\u5728\\u51b0\\u7bb1\\u91cc\\u4e00\\u6bb5\\u65f6\\u95f4\\u540e\\u62ff\\u51fa\\u6765\\uff0c\\u52fa\\u5b50\\u8868\\u9762\\u4f1a\\u51dd\\u7ed3\\u6c34\\u73e0\\u5417\\uff1f"
+
+    print("[\\u76f4\\u63a5\\u56de\\u7b54]")
+    thinking, result = chat_completion(common_question)
+    print_result("", common_question, thinking, result)
+
+    print("[\\u5148\\u751f\\u6210\\u77e5\\u8bc6\\u518d\\u56de\\u7b54]")
+    knowledge_prompt = """\\u8bf7\\u751f\\u6210\\u4e0e\\u4ee5\\u4e0b\\u95ee\\u9898\\u76f8\\u5173\\u7684\\u77e5\\u8bc6\\uff0c\\u5305\\u62ec\\uff1a
+1. \\u51dd\\u7ed3\\u7684\\u7269\\u7406\\u539f\\u7406
+2. \\u91d1\\u5c5e\\u7684\\u70ed\\u4f20\\u5bfc\\u7279\\u6027
+3. \\u7a7a\\u6c14\\u4e2d\\u7684\\u6c34\\u84b8\\u6c14\\u884c\\u4e3a
+
+\\u95ee\\u9898\\uff1a""" + common_question + """
+
+\\u76f8\\u5173\\u77e5\\u8bc6\\uff1a"""
+    thinking, knowledge = chat_completion(knowledge_prompt)
+
+    answer_prompt = """\\u95ee\\u9898\\uff1a""" + common_question + """
+
+\\u76f8\\u5173\\u77e5\\u8bc6\\uff1a
+""" + knowledge.strip() + """
+
+\\u8bf7\\u57fa\\u4e8e\\u4ee5\\u4e0a\\u77e5\\u8bc6\\uff0c\\u9010\\u6b65\\u5206\\u6790\\u5e76\\u51c6\\u786e\\u56de\\u7b54\\uff1a"""
+    thinking, result = chat_completion(answer_prompt)
+    print_result("", answer_prompt, thinking, result)
+
+
+# ============================================================
+# \\u5b9e\\u9a8c12\\uff1aMeta Prompting\\uff08\\u7ed3\\u6784\\u5bfc\\u5411 vs \\u5185\\u5bb9\\u5bfc\\u5411\\uff09
+# ============================================================
+def experiment_12_meta_prompting():
+    """
+    \\u76ee\\u6807\\uff1a\\u8ba4\\u8bc6 Meta Prompting \\u7684\\u6838\\u5fc3\\u7406\\u5ff5\\u2014\\u2014\\u7ed3\\u6784\\u5bfc\\u5411\\u800c\\u975e\\u5185\\u5bb9\\u5bfc\\u5411\\u3002
+    Meta Prompting \\u5173\\u6ce8\\u95ee\\u9898\\u7684\\u8bed\\u6cd5\\u6a21\\u5f0f\\u800c\\u975e\\u5177\\u4f53\\u5185\\u5bb9\\uff0c
+    \\u6bd4 Few-shot \\u66f4\\u9ad8\\u6548\\uff08Token\\u6548\\u7387\\u3001\\u96f6\\u6837\\u672c\\u6548\\u80fd\\uff09\\u3002
+    \\u53c2\\u8003\\uff1aZhang\\u7b49\\u4eba\\uff082024\\uff09Meta Prompting
+    """
+
+    print("=" * 60)
+    print("\\u5b9e\\u9a8c12: Meta Prompting\\uff08\\u7ed3\\u6784\\u5bfc\\u5411 vs \\u5185\\u5bb9\\u5bfc\\u5411\\uff09")
+    print("=" * 60)
+
+    # \\u2460 \\u7ed3\\u6784\\u5bfc\\u5411 vs \\u5185\\u5bb9\\u5bfc\\u5411\\u5bf9\\u6bd4
+    print("--- \\u2460 \\u7ed3\\u6784\\u5bfc\\u5411 vs \\u5185\\u5bb9\\u5bfc\\u5411 ---")
+    math_problem = "\\u5982\\u679c\\u4e00\\u4e2a\\u6b63\\u65b9\\u5f62\\u7684\\u9762\\u79ef\\u662f144\\u5e73\\u65b9\\u5398\\u7c73\\uff0c\\u5b83\\u7684\\u5468\\u957f\\u662f\\u591a\\u5c11\\uff1f"
+
+    print("[\\u5185\\u5bb9\\u5bfc\\u5411\\uff08Few-shot\\uff09\\uff1a\\u63d0\\u4f9b\\u5177\\u4f53\\u793a\\u4f8b]")
+    user_prompt = """\\u8bf7\\u89e3\\u51b3\\u4ee5\\u4e0b\\u6570\\u5b66\\u95ee\\u9898\\u3002
+
+\\u793a\\u4f8b1\\uff1a\\u5982\\u679c\\u4e00\\u4e2a\\u6b63\\u65b9\\u5f62\\u7684\\u9762\\u79ef\\u662f25\\u5e73\\u65b9\\u5398\\u7c73\\uff0c\\u5b83\\u7684\\u5468\\u957f\\u662f\\u591a\\u5c11\\uff1f
+\\u89e3\\u7b54\\uff1a\\u9762\\u79ef=25\\uff0c\\u8fb9\\u957f=5\\uff0c\\u5468\\u957f=4\\u00d75=20\\u5398\\u7c73\\u3002
+
+\\u793a\\u4f8b2\\uff1a\\u5982\\u679c\\u4e00\\u4e2a\\u6b63\\u65b9\\u5f62\\u7684\\u9762\\u79ef\\u662f81\\u5e73\\u65b9\\u5398\\u7c73\\uff0c\\u5b83\\u7684\\u5468\\u957f\\u662f\\u591a\\u5c11\\uff1f
+\\u89e3\\u7b54\\uff1a\\u9762\\u79ef=81\\uff0c\\u8fb9\\u957f=9\\uff0c\\u5468\\u957f=4\\u00d79=36\\u5398\\u7c73\\u3002
+
+\\u95ee\\u9898\\uff1a""" + math_problem + """
+\\u89e3\\u7b54\\uff1a"""
+    thinking, result = chat_completion(user_prompt)
+    print_result("", user_prompt, thinking, result)
+
+    print("[\\u7ed3\\u6784\\u5bfc\\u5411\\uff08Meta Prompting\\uff09\\uff1a\\u63d0\\u4f9b\\u89e3\\u9898\\u6a21\\u5f0f]")
+    user_prompt = """\\u8bf7\\u6309\\u7167\\u4ee5\\u4e0b\\u7ed3\\u6784\\u6a21\\u5f0f\\u89e3\\u51b3\\u6570\\u5b66\\u95ee\\u9898\\uff1a
+
+\\u6a21\\u5f0f\\uff1a
+\\u8f93\\u5165\\uff1a[\\u5df2\\u77e5\\u6761\\u4ef6] \\u2192 \\u6b65\\u9aa41\\uff1a\\u4ece\\u5df2\\u77e5\\u6761\\u4ef6\\u63a8\\u5bfc\\u4e2d\\u95f4\\u91cf \\u2192 \\u6b65\\u9aa42\\uff1a\\u7528\\u4e2d\\u95f4\\u91cf\\u8ba1\\u7b97\\u76ee\\u6807\\u91cf \\u2192 \\u8f93\\u51fa\\uff1a[\\u6700\\u7ec8\\u7b54\\u6848]
+
+\\u95ee\\u9898\\uff1a""" + math_problem + """
+
+\\u8bf7\\u4e25\\u683c\\u6309\\u7167\\u4e0a\\u8ff0\\u6a21\\u5f0f\\u7ed3\\u6784\\u6c42\\u89e3\\uff1a"""
+    thinking, result = chat_completion(user_prompt)
+    print_result("", user_prompt, thinking, result)
+
+    # \\u2461 \\u8de8\\u57df\\u6a21\\u5f0f\\u8fc1\\u79fb
+    print("--- \\u2461 \\u8de8\\u57df\\u6a21\\u5f0f\\u8fc1\\u79fb ---")
+    meta_template = """\\u4f60\\u662f\\u4e00\\u4e2a\\u95ee\\u9898\\u6c42\\u89e3\\u5668\\u3002\\u8bf7\\u4f7f\\u7528\\u4ee5\\u4e0b\\u62bd\\u8c61\\u6a21\\u5f0f\\u89e3\\u51b3\\u4efb\\u4f55\\u7c7b\\u578b\\u7684\\u95ee\\u9898\\uff1a
+
+\\u6a21\\u5f0f\\u5b9a\\u4e49\\uff1a
+- \\u8f93\\u5165\\u5206\\u6790\\uff1a\\u8bc6\\u522b\\u95ee\\u9898\\u7684\\u6838\\u5fc3\\u53d8\\u91cf\\u548c\\u5173\\u7cfb
+- \\u7b56\\u7565\\u9009\\u62e9\\uff1a\\u9009\\u62e9\\u9002\\u5408\\u8be5\\u7ed3\\u6784\\u7684\\u89e3\\u51b3\\u7b56\\u7565
+- \\u6267\\u884c\\u6b65\\u9aa4\\uff1a\\u6309\\u7b56\\u7565\\u9010\\u6b65\\u6267\\u884c
+- \\u9a8c\\u8bc1\\uff1a\\u68c0\\u67e5\\u7b54\\u6848\\u662f\\u5426\\u6ee1\\u8db3\\u539f\\u59cb\\u7ea6\\u675f
+
+\\u73b0\\u5728\\u8bf7\\u7528\\u8fd9\\u4e2a\\u6a21\\u5f0f\\u89e3\\u51b3\\u4ee5\\u4e0b\\u95ee\\u9898\\uff1a"""
+
+    print("[\\u6570\\u5b66\\u95ee\\u9898]")
+    problem1 = "\\u4e00\\u4e2a\\u6c34\\u6c60\\u67092\\u4e2a\\u8fdb\\u6c34\\u7ba1\\u548c1\\u4e2a\\u6392\\u6c34\\u7ba1\\u3002\\u7532\\u7ba1\\u5355\\u72ec\\u6ce8\\u6ee1\\u966e\\u5c0f\\u65f6\\uff0c\\u4e59\\u7ba1\\u5355\\u72ec\\u6ce8\\u6ee1\\u966e6\\u5c0f\\u65f6\\uff0c\\u6392\\u6c34\\u7ba1\\u5355\\u72ec\\u6392\\u7a7a\\u966e3\\u5c0f\\u65f6\\u3002\\u4e09\\u7ba1\\u540c\\u65f6\\u6253\\u5f00\\uff0c\\u591a\\u4e45\\u80fd\\u6ce8\\u6ee1\\u6c34\\u6c60\\uff1f"
+    user_prompt = meta_template + problem1
+    thinking, result = chat_completion(user_prompt)
+    print_result("", user_prompt, thinking, result)
+
+    print("[\\u903b\\u8f91\\u95ee\\u9898]")
+    problem2 = "\\u4e00\\u4e2a\\u623f\\u95f4\\u91cc\\u67093\\u76cf\\u706f\\u548c3\\u4e2a\\u5f00\\u5173\\u5728\\u623f\\u95f4\\u5916\\u3002\\u4f60\\u53ea\\u80fd\\u8fdb\\u5165\\u623f\\u95f4\\u4e00\\u6b21\\u3002\\u5982\\u4f55\\u786e\\u5b9a\\u6bcf\\u4e2a\\u5f00\\u5173\\u63a7\\u5236\\u54ea\\u76cf\\u706f\\uff1f"
+    user_prompt = meta_template + problem2
+    thinking, result = chat_completion(user_prompt)
+    print_result("", user_prompt, thinking, result)
+
+    # \\u2462 \\u7c7b\\u578b\\u5316 Meta Prompting
+    print("--- \\u2462 \\u7c7b\\u578b\\u5316 Meta Prompting\\uff08\\u5f3a\\u8c03\\u5206\\u7c7b\\u4e0e\\u903b\\u8f91\\u6392\\u5217\\uff09---")
+    user_prompt = """\\u8bf7\\u6839\\u636e\\u4ee5\\u4e0b\\u7c7b\\u578b\\u5b9a\\u4e49\\uff0c\\u5bf9\\u8f93\\u5165\\u8fdb\\u884c\\u5206\\u7c7b\\u548c\\u5904\\u7406\\uff1a
+
+\\u7c7b\\u578b\\u5b9a\\u4e49\\uff1a
+- \\u5206\\u7c7b\\u4efb\\u52a1\\uff1a\\u8f93\\u5165[\\u6587\\u672c] \\u2192 \\u5206\\u6790[\\u8bed\\u4e49\\u7279\\u5f81] \\u2192 \\u8f93\\u51fa[\\u7c7b\\u522b\\u6807\\u7b7e+\\u7f6e\\u4fe1\\u5ea6]
+- \\u8f6c\\u6362\\u4efb\\u52a1\\uff1a\\u8f93\\u5165[\\u6e90\\u683c\\u5f0f\\u6570\\u636e] \\u2192 \\u8bc6\\u522b[\\u8f6c\\u6362\\u89c4\\u5219] \\u2192 \\u8f93\\u51fa[\\u76ee\\u6807\\u683c\\u5f0f\\u6570\\u636e]
+- \\u751f\\u6210\\u4efb\\u52a1\\uff1a\\u8f93\\u5165[\\u7ea6\\u675f\\u6761\\u4ef6] \\u2192 \\u89c4\\u5212[\\u751f\\u6210\\u7b56\\u7565] \\u2192 \\u8f93\\u51fa[\\u7b26\\u5408\\u7ea6\\u675f\\u7684\\u5185\\u5bb9]
+
+\\u8bf7\\u5148\\u5224\\u65ad\\u4ee5\\u4e0b\\u6bcf\\u4e2a\\u4efb\\u52a1\\u7684\\u7c7b\\u578b\\uff0c\\u518d\\u6309\\u5bf9\\u5e94\\u6a21\\u5f0f\\u5904\\u7406\\uff1a
+
+\\u4efb\\u52a11\\uff1a\\u5c06"2024\\u5e741\\u670815\\u65e5"\\u8f6c\\u6362\\u4e3a"15/01/2024"
+\\u4efb\\u52a12\\uff1a\\u5224\\u65ad"\\u8fd9\\u90e8\\u7535\\u5f71\\u592a\\u8ba9\\u4eba\\u5931\\u671b\\u4e86"\\u7684\\u60c5\\u611f\\u503e\\u5411
+\\u4efb\\u52a13\\uff1a\\u5199\\u4e00\\u9996\\u5173\\u4e8e\\u6625\\u5929\\u7684\\u4e94\\u8a00\\u7edd\\u53e5
+
+\\u8f93\\u51fa\\u683c\\u5f0f\\uff1a
+\\u4efb\\u52a1\\u7c7b\\u578b | \\u5206\\u6790\\u8fc7\\u7a0b | \\u8f93\\u51fa\\u7ed3\\u679c"""
+    thinking, result = chat_completion(user_prompt)
+    print_result("", user_prompt, thinking, result)
+
+    # \\u2463 Meta Prompting \\u7684 Token \\u6548\\u7387\\u5bf9\\u6bd4
+    print("--- \\u2463 Token \\u6548\\u7387\\u5bf9\\u6bd4 ---")
+    task = "\\u5c06\\u4ee5\\u4e0b\\u53e5\\u5b50\\u4ece\\u4e3b\\u52a8\\u8bed\\u6001\\u8f6c\\u6362\\u4e3a\\u88ab\\u52a8\\u8bed\\u6001"
+
+    print("[Few-shot\\u65b9\\u5f0f\\uff08\\u66f4\\u591aToken\\uff09]")
+    user_prompt = """""" + task + """
+
+\\u793a\\u4f8b1\\uff1a\\u732b\\u6293\\u4e86\\u8001\\u9f20\\u3002\\u2192 \\u8001\\u9f20\\u88ab\\u732b\\u6293\\u4e86\\u3002
+\\u793a\\u4f8b2\\uff1a\\u8001\\u5e08\\u8868\\u626c\\u4e86\\u5b66\\u751f\\u3002\\u2192 \\u5b66\\u751f\\u88ab\\u8001\\u5e08\\u8868\\u626c\\u4e86\\u3002
+\\u793a\\u4f8b3\\uff1a\\u516c\\u53f8\\u53d1\\u5e03\\u4e86\\u65b0\\u4ea7\\u54c1\\u3002\\u2192 \\u65b0\\u4ea7\\u54c1\\u88ab\\u516c\\u53f8\\u53d1\\u5e03\\u4e86\\u3002
+
+\\u53e5\\u5b50\\uff1a\\u98ce\\u5439\\u5012\\u4e86\\u8001\\u6811\\u3002\\u2192"""
+    thinking, result = chat_completion(user_prompt)
+    print(f"  \\u63d0\\u793a\\u8bcd\\u957f\\u5ea6: {len(user_prompt)} \\u5b57\\u7b26")
+    print_result("", user_prompt, thinking, result)
+
+    print("[Meta Prompting\\u65b9\\u5f0f\\uff08\\u66f4\\u5c11Token\\uff09]")
+    user_prompt = """""" + task + """
+
+\\u6a21\\u5f0f\\uff1a[\\u4e3b\\u8bed][\\u52a8\\u4f5c][\\u5bbe\\u8bed] \\u2192 [\\u5bbe\\u8bed]\\u88ab[\\u4e3b\\u8bed][\\u52a8\\u4f5c]
+
+\\u53e5\\u5b50\\uff1a\\u98ce\\u5439\\u5012\\u4e86\\u8001\\u6811\\u3002\\u2192"""
+    thinking, result = chat_completion(user_prompt)
+    print(f"  \\u63d0\\u793a\\u8bcd\\u957f\\u5ea6: {len(user_prompt)} \\u5b57\\u7b26")
+    print_result("", user_prompt, thinking, result)
+
+
+# ============================================================
+# \\u4e3b\\u5165\\u53e3
+# ============================================================
+if __name__ == "__main__":
+    experiment_9_self_consistency()
+    experiment_10_tree_of_thoughts()
+    experiment_11_generated_knowledge()
+    experiment_12_meta_prompting()
+'''
+
+with open(TARGET, "w", encoding="utf-8") as f:
+    f.write(content)
+
+# Verify compilation
+import py_compile
+try:
+    py_compile.compile(TARGET, doraise=True)
+    print("Day 3 compilation PASSED")
+except py_compile.PyCompileError as e:
+    print(f"Day 3 compilation FAILED: {e}")
